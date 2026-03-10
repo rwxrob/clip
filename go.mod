@@ -40,7 +40,7 @@ require (
 	github.com/rwxrob/bonzai/scanner v0.1.0 // indirect
 	github.com/rwxrob/bonzai/to v0.6.1 // indirect
 	github.com/rwxrob/bonzai/uniq v0.1.0 // indirect
-	github.com/rwxrob/bonzai/yt v0.0.0-20260310014402-4cc7ec7ea7de // indirect
+	github.com/rwxrob/bonzai/yt v0.0.3 // indirect
 	github.com/yuin/goldmark v1.7.8 // indirect
 	github.com/yuin/goldmark-emoji v1.0.4 // indirect
 	golang.org/x/net v0.35.0 // indirect

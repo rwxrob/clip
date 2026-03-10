@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/rwxrob/bonzai/yt"
 )
@@ -32,18 +33,30 @@ func (d *Data) Cache(dir string) error {
 		return err
 	}
 
-	for _, clip := range *d {
+	for i, clip := range *d {
+
 		out := filepath.Join(dir, clip.ID)
 
 		if _, err := os.Stat(out); err == nil {
 			continue // already cached
 		}
 
-		_, err := yt.Download(yt.DownloadOptions{
+		if i > 0 {
+			time.Sleep(3 * time.Second)
+		}
+
+		opts := yt.DownloadOptions{
 			URL:        clip.ID,
-			OutputDir:  out,
+			OutputDir:  dir,
 			OutputName: clip.ID,
-		})
+		}
+
+		fmt.Printf("%s: https://youtube.com/watch?v=%s -> %s\n",
+			clip.Name, opts.URL, out,
+		)
+
+		_, err := yt.Download(opts)
+
 		if err != nil {
 			return fmt.Errorf("cache %s: %w", clip.ID, err)
 		}
@@ -234,4 +247,41 @@ func Convert(r io.Reader, w io.Writer) error {
 	}
 
 	return scanner.Err()
+}
+
+func Find(name, path string) (*Clip, error) {
+
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+
+	line := 0
+	for scanner.Scan() {
+		line++
+
+		s := strings.TrimSpace(scanner.Text())
+
+		if s == "" || strings.HasPrefix(s, "#") {
+			continue
+		}
+
+		var c Clip
+		if err := c.UnmarshalText([]byte(s)); err != nil {
+			return nil, fmt.Errorf("line %d: %w", line, err)
+		}
+
+		if c.Name == name {
+			return &c, nil
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return nil, fmt.Errorf("clip not found: %s", name)
 }

@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/rwxrob/bonzai"
 	"github.com/rwxrob/bonzai/cmds/help"
 	"github.com/rwxrob/bonzai/comp"
+	"github.com/rwxrob/bonzai/yt"
 	clip "github.com/rwxrob/clip/pkg"
 )
 
@@ -18,7 +20,7 @@ func main() {
 var cmd = &bonzai.Cmd{
 	Name: `clip`,
 	Comp: comp.Cmds,
-	Cmds: []*bonzai.Cmd{help.Cmd, edit, dir, data, add, list, play, cache, convert},
+	Cmds: []*bonzai.Cmd{help.Cmd, edit, dir, data, add, list, play, download, cache, convert},
 }
 
 var convert = &bonzai.Cmd{
@@ -106,6 +108,48 @@ YouTube video into CLIP_DIR.
 
 		if err := data.Cache(cacheDir); err != nil {
 			return fmt.Errorf("cache to CLIP_DIR %q: %w", cacheDir, err)
+		}
+
+		return nil
+	},
+}
+
+var download = &bonzai.Cmd{
+	Name:    "download",
+	Short:   "download a single clip into CLIP_DIR",
+	Usage:   "download <youtube-id>|<name>",
+	NumArgs: 1,
+	Do: func(_ *bonzai.Cmd, args ...string) error {
+
+		dir, ok := os.LookupEnv("CLIP_DIR")
+		if !ok || dir == "" {
+			return fmt.Errorf("CLIP_DIR must be set")
+		}
+
+		id := args[0]
+
+		cl, _ := clip.Find(id, os.Getenv("CLIP_DATA"))
+		if cl != nil {
+			id = cl.ID
+		}
+
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return err
+		}
+
+		out := filepath.Join(dir, id)
+
+		if _, err := os.Stat(out); err == nil {
+			return nil // already cached
+		}
+
+		_, err := yt.Download(yt.DownloadOptions{
+			URL:        id,
+			OutputDir:  dir,
+			OutputName: id,
+		})
+		if err != nil {
+			return fmt.Errorf("download %s: %w", id, err)
 		}
 
 		return nil
