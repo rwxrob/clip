@@ -17,6 +17,75 @@ type Video struct {
 	Duration float64
 }
 
+type Clip struct {
+	Name     string
+	ID       string
+	Volume   int
+	Start    float64
+	Duration float64
+}
+
+func (c Clip) String() string {
+	b, err := c.MarshalText()
+	if err != nil {
+		return ""
+	}
+	return string(b)
+}
+
+func (c Clip) MarshalText() ([]byte, error) {
+	if c.Name == "" {
+		return nil, fmt.Errorf("missing Name")
+	}
+	if c.ID == "" {
+		return nil, fmt.Errorf("missing ID")
+	}
+
+	s := fmt.Sprintf("%s %s %d %g %g",
+		c.Name,
+		c.ID,
+		c.Volume,
+		c.Start,
+		c.Duration,
+	)
+
+	return []byte(s), nil
+}
+
+func (c *Clip) UnmarshalText(text []byte) error {
+	if c == nil {
+		return fmt.Errorf("nil Clip")
+	}
+
+	fields := strings.Fields(strings.TrimSpace(string(text)))
+	if len(fields) != 5 {
+		return fmt.Errorf("invalid clip text: %q", string(text))
+	}
+
+	vol, err := strconv.Atoi(fields[2])
+	if err != nil {
+		return fmt.Errorf("invalid volume %q: %w", fields[2], err)
+	}
+
+	start, err := strconv.ParseFloat(fields[3], 64)
+	if err != nil {
+		return fmt.Errorf("invalid start %q: %w", fields[3], err)
+	}
+
+	dur, err := strconv.ParseFloat(fields[4], 64)
+	if err != nil {
+		return fmt.Errorf("invalid duration %q: %w", fields[4], err)
+	}
+
+	c.Name = fields[0]
+	c.ID = fields[1]
+	c.Volume = vol
+	c.Start = start
+	c.Duration = dur
+
+	return nil
+}
+
 func (v *Video) TextMarshaler() ([]byte, error) {
 	return []byte(v.String()), nil
 }

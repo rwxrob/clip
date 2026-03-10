@@ -32,3 +32,53 @@ func ExampleConvert() {
 	// Output:
 	// pleaseclap OUXvrWeQU0g 100 21.6 4
 }
+
+func ExampleClip_MarshalText() {
+	c := clip.Clip{
+		Name:     "pleaseclap",
+		ID:       "OUXvrWeQU0g",
+		Volume:   100,
+		Start:    21.6,
+		Duration: 4,
+	}
+
+	b, _ := c.MarshalText()
+	fmt.Println(string(b))
+
+	// Output:
+	// pleaseclap OUXvrWeQU0g 100 21.6 4
+}
+
+func ExampleClip_UnmarshalText() {
+	var c clip.Clip
+
+	_ = c.UnmarshalText([]byte("pleaseclap OUXvrWeQU0g 100 21.6 4"))
+
+	fmt.Println(c.Name)
+	fmt.Println(c.ID)
+	fmt.Println(c.Volume)
+	fmt.Println(c.Start)
+	fmt.Println(c.Duration)
+
+	// Output:
+	// pleaseclap
+	// OUXvrWeQU0g
+	// 100
+	// 21.6
+	// 4
+}
+
+func ExampleClip_String() {
+	c := clip.Clip{
+		Name:     "pleaseclap",
+		ID:       "OUXvrWeQU0g",
+		Volume:   100,
+		Start:    21.6,
+		Duration: 4,
+	}
+
+	fmt.Println(c.String())
+
+	// Output:
+	// pleaseclap OUXvrWeQU0g 100 21.6 4
+}
