@@ -17,6 +17,37 @@ type Video struct {
 	Duration float64
 }
 
+type Data []*Clip
+
+func Load(r io.Reader) (*Data, error) {
+	var d Data
+	scanner := bufio.NewScanner(r)
+
+	line := 0
+	for scanner.Scan() {
+		line++
+
+		s := strings.TrimSpace(scanner.Text())
+
+		if s == "" || strings.HasPrefix(s, "#") {
+			continue
+		}
+
+		var c Clip
+		if err := c.UnmarshalText([]byte(s)); err != nil {
+			return nil, fmt.Errorf("line %d: %w", line, err)
+		}
+
+		d = append(d, &c)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("line %d: %w", line, err)
+	}
+
+	return &d, nil
+}
+
 type Clip struct {
 	Name     string
 	ID       string

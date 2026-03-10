@@ -82,3 +82,26 @@ func ExampleClip_String() {
 	// Output:
 	// pleaseclap OUXvrWeQU0g 100 21.6 4
 }
+
+func ExampleLoad() {
+	input := strings.NewReader(`
+pleaseclap OUXvrWeQU0g 100 21.6 4
+nice abc123xyz 42 9.1 2
+`)
+
+	data, err := clip.Load(input)
+	if err != nil {
+		fmt.Println(data)
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(len(*data))
+	fmt.Println((*data)[0].Name)
+	fmt.Println((*data)[1].ID)
+
+	// Output:
+	// 2
+	// pleaseclap
+	// abc123xyz
+}
