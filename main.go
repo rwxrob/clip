@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/rwxrob/bonzai"
+	"github.com/rwxrob/bonzai/cmds/help"
 	"github.com/rwxrob/bonzai/comp"
 	clip "github.com/rwxrob/clip/pkg"
 )
@@ -16,12 +17,15 @@ func main() {
 var cmd = &bonzai.Cmd{
 	Name: `clip`,
 	Comp: comp.Cmds,
-	Cmds: []*bonzai.Cmd{edit, dir, data, add, list, play, download, convert},
+	Cmds: []*bonzai.Cmd{help.Cmd, edit, dir, data, add, list, play, download, convert},
 }
 
 var convert = &bonzai.Cmd{
 	Name:    `convert`,
+	Short:   `convert file/stdin of old data to new`,
 	MaxArgs: 1,
+	Cmds:    []*bonzai.Cmd{help.Cmd},
+	Comp:    comp.FileDir,
 
 	Do: func(_ *bonzai.Cmd, args ...string) error {
 		var r io.Reader

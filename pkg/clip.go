@@ -64,11 +64,13 @@ func Convert(r io.Reader, w io.Writer) error {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
+			fmt.Fprintln(w, line)
 			continue
 		}
 
 		parts := strings.Fields(line)
 		if len(parts) < 3 {
+			fmt.Fprintln(w, line)
 			continue
 		}
 
@@ -77,6 +79,7 @@ func Convert(r io.Reader, w io.Writer) error {
 
 		meta := strings.Split(parts[2], ",")
 		if len(meta) < 3 {
+			fmt.Fprintln(w, line)
 			continue
 		}
 
