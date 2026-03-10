@@ -5,8 +5,12 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/rwxrob/bonzai/yt"
 )
 
 type Video struct {
@@ -18,6 +22,35 @@ type Video struct {
 }
 
 type Data []*Clip
+
+func (d *Data) Cache(dir string) error {
+	if d == nil {
+		return fmt.Errorf("nil data")
+	}
+
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+
+	for _, clip := range *d {
+		out := filepath.Join(dir, clip.ID)
+
+		if _, err := os.Stat(out); err == nil {
+			continue // already cached
+		}
+
+		_, err := yt.Download(yt.DownloadOptions{
+			URL:        clip.ID,
+			OutputDir:  out,
+			OutputName: clip.ID,
+		})
+		if err != nil {
+			return fmt.Errorf("cache %s: %w", clip.ID, err)
+		}
+	}
+
+	return nil
+}
 
 func Load(r io.Reader) (*Data, error) {
 	var d Data

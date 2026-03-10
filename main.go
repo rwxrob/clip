@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"os"
 
@@ -17,7 +18,7 @@ func main() {
 var cmd = &bonzai.Cmd{
 	Name: `clip`,
 	Comp: comp.Cmds,
-	Cmds: []*bonzai.Cmd{help.Cmd, edit, dir, data, add, list, play, download, convert},
+	Cmds: []*bonzai.Cmd{help.Cmd, edit, dir, data, add, list, play, cache, convert},
 }
 
 var convert = &bonzai.Cmd{
@@ -71,9 +72,44 @@ var add = &bonzai.Cmd{
 	Do:   bonzai.Wood,
 }
 
-var download = &bonzai.Cmd{
-	Name: `download`,
-	Do:   bonzai.Wood,
+var cache = &bonzai.Cmd{
+	Name:   `cache`,
+	Short:  `cache all clip videos into CLIP_DIR`,
+	Usage:  `CLIP_DATA=/path/to/data CLIP_DIR=/path/to/cache {{cmd .Name}}`,
+	NoArgs: true,
+	Long: `
+Loads all clip metadata from CLIP_DATA and caches every referenced
+YouTube video into CLIP_DIR.
+`,
+	Do: func(*bonzai.Cmd, ...string) error {
+
+		dataPath, ok := os.LookupEnv("CLIP_DATA")
+		if !ok || dataPath == "" {
+			return fmt.Errorf("CLIP_DATA must be set")
+		}
+
+		cacheDir, ok := os.LookupEnv("CLIP_DIR")
+		if !ok || cacheDir == "" {
+			return fmt.Errorf("CLIP_DIR must be set")
+		}
+
+		f, err := os.Open(dataPath)
+		if err != nil {
+			return fmt.Errorf("open CLIP_DATA %q: %w", dataPath, err)
+		}
+		defer f.Close()
+
+		data, err := clip.Load(f)
+		if err != nil {
+			return fmt.Errorf("load CLIP_DATA %q: %w", dataPath, err)
+		}
+
+		if err := data.Cache(cacheDir); err != nil {
+			return fmt.Errorf("cache to CLIP_DIR %q: %w", cacheDir, err)
+		}
+
+		return nil
+	},
 }
 
 var list = &bonzai.Cmd{
