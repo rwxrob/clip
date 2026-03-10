@@ -1,6 +1,9 @@
 package main
 
 import (
+	"io"
+	"os"
+
 	"github.com/rwxrob/bonzai"
 	"github.com/rwxrob/bonzai/comp"
 	clip "github.com/rwxrob/clip/pkg"
@@ -13,7 +16,35 @@ func main() {
 var cmd = &bonzai.Cmd{
 	Name: `clip`,
 	Comp: comp.Cmds,
-	Cmds: []*bonzai.Cmd{edit, dir, data, add, list, play},
+	Cmds: []*bonzai.Cmd{edit, dir, data, add, list, play, download, convert},
+}
+
+var convert = &bonzai.Cmd{
+	Name:    `convert`,
+	MaxArgs: 1,
+
+	Do: func(_ *bonzai.Cmd, args ...string) error {
+		var r io.Reader
+
+		switch len(args) {
+		case 0:
+			r = os.Stdin
+
+		case 1:
+			f, err := os.Open(args[0])
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+			r = f
+		}
+
+		if err := clip.Convert(r, os.Stdout); err != nil {
+			return err
+		}
+
+		return nil
+	},
 }
 
 var edit = &bonzai.Cmd{
@@ -33,6 +64,11 @@ var data = &bonzai.Cmd{
 
 var add = &bonzai.Cmd{
 	Name: `add`,
+	Do:   bonzai.Wood,
+}
+
+var download = &bonzai.Cmd{
+	Name: `download`,
 	Do:   bonzai.Wood,
 }
 
