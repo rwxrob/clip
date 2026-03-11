@@ -245,6 +245,7 @@ var play = &bonzai.Cmd{
 	Name:    "play",
 	Short:   "play a random clip matching a name",
 	Usage:   "play <name>",
+	Comp:    names,
 	NumArgs: 1,
 	Do: func(x *bonzai.Cmd, args ...string) error {
 
