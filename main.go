@@ -145,7 +145,7 @@ var add = &bonzai.Cmd{
 			return err
 		}
 
-		return nil
+		return _edit.Do(_edit)
 	},
 }
 
@@ -326,31 +326,14 @@ var play = &bonzai.Cmd{
 
 		clip := matches[rand.IntN(len(matches))]
 		path := filepath.Join(dir, clip.ID)
+		volume := fmt.Sprintf("--volume=%d", clip.Volume)
+		start := fmt.Sprintf("--start=%f", clip.Start)
+		length := fmt.Sprintf("--length=%f", clip.Length)
 
-		cmd := exec.Command(
-			"mpv",
-			"--fullscreen",
-			"--fs-screen=0",
-			"--no-border",
-			"--no-terminal",
-			"--really-quiet",
-			"--ontop",
-			"--cache=no",
-			"--demuxer-readahead-secs=0",
-			"--vd-lavc-threads=1",
-			"--no-resume-playback",
-			"--keep-open=no",
-			"--no-keepaspect-window",
-			//"--no-osc",
-			//"--video-unscaled=yes",
-			fmt.Sprintf("--start=%g", clip.Start),
-			fmt.Sprintf("--length=%g", clip.Duration),
-			fmt.Sprintf("--volume=%d", clip.Volume),
-			path,
-		)
+		cmd := exec.Command("mpv", "--fs", "--no-terminal", volume, start, length, path)
 
-		cmd.Stdin = nil
-		cmd.Stdout = nil
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
 		return cmd.Run()

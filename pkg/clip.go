@@ -15,11 +15,11 @@ import (
 )
 
 type Video struct {
-	Name     string
-	Volume   int
-	File     string
-	Start    float64
-	Duration float64
+	Name   string
+	Volume int
+	File   string
+	Start  float64
+	Length float64
 }
 
 type Data []*Clip
@@ -95,11 +95,11 @@ func Load(r io.Reader) (*Data, error) {
 }
 
 type Clip struct {
-	Name     string
-	ID       string
-	Volume   int
-	Start    float64
-	Duration float64
+	Name   string
+	ID     string
+	Volume int
+	Start  float64
+	Length float64
 }
 
 func (c Clip) String() string {
@@ -123,7 +123,7 @@ func (c Clip) MarshalText() ([]byte, error) {
 		c.ID,
 		c.Volume,
 		c.Start,
-		c.Duration,
+		c.Length,
 	)
 
 	return []byte(s), nil
@@ -158,7 +158,7 @@ func (c *Clip) UnmarshalText(text []byte) error {
 	c.ID = fields[1]
 	c.Volume = vol
 	c.Start = start
-	c.Duration = dur
+	c.Length = dur
 
 	return nil
 }
@@ -169,7 +169,7 @@ func (v *Video) TextMarshaler() ([]byte, error) {
 
 func (v *Video) String() string {
 	out := fmt.Sprintf(`%v %v %v %v %v`,
-		v.Name, v.Volume, v.File, v.Start, v.Duration,
+		v.Name, v.Volume, v.File, v.Start, v.Length,
 	)
 	return out
 }
@@ -194,7 +194,7 @@ func (v *Video) UnmarshalText(in []byte) (err error) {
 		return err
 	}
 
-	v.Duration, err = strconv.ParseFloat(string(f[4]), 64)
+	v.Length, err = strconv.ParseFloat(string(f[4]), 64)
 	if err != nil {
 		return err
 	}

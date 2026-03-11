@@ -35,11 +35,11 @@ func ExampleConvert() {
 
 func ExampleClip_MarshalText() {
 	c := clip.Clip{
-		Name:     "pleaseclap",
-		ID:       "OUXvrWeQU0g",
-		Volume:   100,
-		Start:    21.6,
-		Duration: 4,
+		Name:   "pleaseclap",
+		ID:     "OUXvrWeQU0g",
+		Volume: 100,
+		Start:  21.6,
+		Length: 4,
 	}
 
 	b, _ := c.MarshalText()
@@ -58,7 +58,7 @@ func ExampleClip_UnmarshalText() {
 	fmt.Println(c.ID)
 	fmt.Println(c.Volume)
 	fmt.Println(c.Start)
-	fmt.Println(c.Duration)
+	fmt.Println(c.Length)
 
 	// Output:
 	// pleaseclap
@@ -70,11 +70,11 @@ func ExampleClip_UnmarshalText() {
 
 func ExampleClip_String() {
 	c := clip.Clip{
-		Name:     "pleaseclap",
-		ID:       "OUXvrWeQU0g",
-		Volume:   100,
-		Start:    21.6,
-		Duration: 4,
+		Name:   "pleaseclap",
+		ID:     "OUXvrWeQU0g",
+		Volume: 100,
+		Start:  21.6,
+		Length: 4,
 	}
 
 	fmt.Println(c.String())
