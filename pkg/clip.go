@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -284,4 +285,40 @@ func Find(name, path string) (*Clip, error) {
 	}
 
 	return nil, fmt.Errorf("clip not found: %s", name)
+}
+
+func Names() []string {
+	var names = []string{}
+
+	path := os.Getenv("CLIP_DATA")
+	if path == "" {
+		return names
+		// TODO grab embedded
+	}
+
+	f, err := os.Open(path)
+	if err != nil {
+		return names
+	}
+	defer f.Close()
+
+	data, err := Load(f)
+	if err != nil {
+		return names
+	}
+
+	seen := make(map[string]struct{})
+
+	for _, clip := range *data {
+		seen[clip.Name] = struct{}{}
+	}
+
+	for n := range seen {
+		names = append(names, n)
+	}
+
+	sort.Strings(names)
+
+	return names
+
 }

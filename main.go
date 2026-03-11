@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sort"
+	"strings"
 
 	"github.com/rwxrob/bonzai"
 	"github.com/rwxrob/bonzai/cmds/help"
@@ -23,7 +23,7 @@ func main() {
 
 var cmd = &bonzai.Cmd{
 	Name: `clip`,
-	Comp: comp.Cmds,
+	Comp: comp.Combine{comp.Cmds, names},
 	Cmds: []*bonzai.Cmd{help.Cmd, _edit, dir, data, add, list, play, download, cache, convert},
 	Def:  play,
 }
@@ -235,50 +235,8 @@ var list = &bonzai.Cmd{
 	Name:  "list",
 	Short: "print all unique clip names",
 	Usage: "list",
-	Do: func(x *bonzai.Cmd, args ...string) error {
-
-		if len(args) != 0 {
-			return fmt.Errorf("takes no arguments")
-		}
-
-		path := os.Getenv("CLIP_DATA")
-		if path == "" {
-			return fmt.Errorf("CLIP_DATA must be set")
-		}
-
-		f, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-
-		data, err := clip.Load(f)
-		if err != nil {
-			return err
-		}
-
-		seen := make(map[string]struct{})
-
-		for _, clip := range *data {
-			seen[clip.Name] = struct{}{}
-		}
-
-		names := make([]string, 0, len(seen))
-		for n := range seen {
-			names = append(names, n)
-		}
-
-		sort.Strings(names)
-
-		for i, n := range names {
-			if i > 0 {
-				fmt.Print(" ")
-			}
-			fmt.Print(n)
-		}
-
-		fmt.Println()
-
+	Do: func(*bonzai.Cmd, ...string) error {
+		fmt.Println(clip.Names())
 		return nil
 	},
 }
@@ -339,3 +297,24 @@ var play = &bonzai.Cmd{
 		return cmd.Run()
 	},
 }
+
+type ClipsCompleter struct{}
+
+func (c ClipsCompleter) Complete(args ...string) []string {
+	if len(args) == 0 {
+		return clip.Names()
+	}
+
+	prefix := args[0]
+	var out []string
+
+	for _, name := range clip.Names() {
+		if strings.HasPrefix(name, prefix) {
+			out = append(out, name)
+		}
+	}
+
+	return out
+}
+
+var names = ClipsCompleter{}
