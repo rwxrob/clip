@@ -31,6 +31,7 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/rwxrob/bonzai/cmds/help v0.8.2 // indirect
 	github.com/rwxrob/bonzai/ds v0.1.1 // indirect
+	github.com/rwxrob/bonzai/edit v0.1.1 // indirect
 	github.com/rwxrob/bonzai/fn v0.9.0 // indirect
 	github.com/rwxrob/bonzai/futil v0.4.0 // indirect
 	github.com/rwxrob/bonzai/is v0.3.0 // indirect
